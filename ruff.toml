@@ -1,0 +1,24 @@
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "W", "N"]
+ignore = ["E203"]
+
+[lint.isort]
+known-first-party = ["app"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+# Correct exclude
+exclude = [
+  ".venv",
+  ".git",
+  ".mypy_cache",
+  ".ruff_cache",
+  "node_modules",
+  "dist",
+]

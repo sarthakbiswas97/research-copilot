@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: rc_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: research_copilot
+      POSTGRES_USER: rc_user
+      POSTGRES_PASSWORD: rc_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rc_user -d research_copilot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: services/gateway/Dockerfile
+    container_name: rc_gateway
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      # Safe default if .env not present
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://rc_user:rc_password@db:5432/research_copilot}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
